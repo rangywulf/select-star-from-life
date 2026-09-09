@@ -22,8 +22,12 @@ select-star-from-life/
 ├── docs/
 │   └── architecture.md
 ├── js/
+│   ├── data/
+│   │   ├── chart-data.js       (GOAL, PILLARS, MONTH, DAY_TEMPLATE)
+│   │   ├── resources-data.js   (RESOURCES)
+│   │   ├── cheatsheets-data.js (CHEATSHEETS)
+│   │   └── flashcards-data.js  (FLASHCARDS)
 │   ├── app.js          (shared: renders whichever page is loaded)
-│   ├── data.js         (shared content: GOAL, PILLARS, MONTH, etc.)
 │   ├── nav.js          (shared: nav bar behavior, active-link styling)
 │   └── storage.js      (shared localStorage load/save helpers)
 ├── README.md
@@ -34,16 +38,18 @@ select-star-from-life/
 └── style.css
 ```
 
-All four HTML pages load the same shared scripts from `js/`, no new
-script files needed as `resources.html`, `cheatsheets.html`, and
-`flashcards.html` get built.
+Data is split by page instead of one shared `data.js`, each page only
+loads the data file it actually needs: `index.html` loads
+`chart-data.js`, `flashcards.html` loads `flashcards-data.js`, and so on.
+No page pulls in content it doesn't use.
 
-Every HTML file loads `style.css`, then `js/data.js`, `js/storage.js`,
-`js/nav.js`, and `js/app.js`, in that order, since `app.js` depends on
-the others being loaded first. There's one shared `app.js` for every
-page rather than a separate script per page, it checks which elements
-exist in the current page's HTML (e.g. is there a `#board`, a
-`#flashcard-deck`) and only renders the piece that page actually has.
+Every HTML file loads `style.css`, then its own `js/data/*.js` file,
+then `js/storage.js`, `js/nav.js`, and `js/app.js`, in that order, since
+`app.js` depends on the others being loaded first. There's one shared
+`app.js` for every page rather than a separate script per page, it
+checks which elements exist in the current page's HTML (e.g. is there a
+`#board`, a `#flashcard-deck`) and only renders the piece that page
+actually has.
 
 ## Page architecture
 
@@ -69,7 +75,10 @@ to an actual different `.html` file), not a JS-driven view swap.
 ## Data model
 
 These are the shapes the data lives in, described conceptually, not as
-finished code. All of it lives in `data.js` so every page can read it:
+finished code. Split across four files under `js/data/` instead of one
+shared file, so each page only loads what it needs:
+
+**chart-data.js**, used by `index.html`:
 
 **GOAL** — one object: a title and a short subtitle describing the
 ultimate goal.
@@ -88,11 +97,17 @@ rotate through.
 day maps to which pillar, or to a code-practice slot, or to rest). Reused
 by every week in MONTH.
 
+**resources-data.js**, used by `resources.html`:
+
 **RESOURCES** — practice sites grouped by category (SQL, Python, Code
 Practice, Interview Prep), each entry a name, a link, and a one-line why.
 
+**cheatsheets-data.js**, used by `cheatsheets.html`:
+
 **CHEATSHEETS** — reference content grouped by language, each language a
 list of labeled code blocks.
+
+**flashcards-data.js**, used by `flashcards.html`:
 
 **FLASHCARDS** — an array of cards, each with a category, a question, and
 an answer.
