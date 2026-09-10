@@ -11,6 +11,7 @@ linked to each other with normal `<a href>` navigation.
 
 - HTML, CSS, JavaScript only
 - No npm, no bundler, no framework
+- IDE: VS Code
 - Persistence via `localStorage` (shared across all pages on the same
   site, since it's tied to the domain, not to a single page)
 - Hosted as a static site (e.g. GitHub Pages)
@@ -19,6 +20,16 @@ linked to each other with normal `<a href>` navigation.
 
 ```
 select-star-from-life/
+├── assets/
+│   ├── sprites/
+│   │   ├── tilemap-characters.png
+│   │   └── tiny player spritesheet.png
+│   └── tiles/
+│       ├── Map Paths v1 18x18.png
+│       ├── Map Snow Tiles v1 18x18.png
+│       ├── Map Tiles 18x18 v2.png
+│       ├── tilemap-backgrounds.png
+│       └── tilemap.png
 ├── docs/
 │   └── architecture.md
 ├── js/
@@ -31,12 +42,25 @@ select-star-from-life/
 │   ├── nav.js          (shared: nav bar behavior, active-link styling)
 │   └── storage.js      (shared localStorage load/save helpers)
 ├── README.md
-├── index.html          (Chart: mandala + 4-week map)
+├── index.html          (Chart: board + 4-week map)
 ├── resources.html      (not built yet)
 ├── cheatsheets.html    (not built yet)
 ├── flashcards.html     (not built yet)
 └── style.css
 ```
+
+`assets/sprites/` holds the player character sheets (from Kenney's Pixel
+Platformer and the World Map Addons pack), `assets/tiles/` holds the
+ground/path tilemaps used to build the board. Both are referenced from
+`style.css` as background images, sliced via `background-position`
+rather than split into separate files.
+
+One practical note: `tiny player spritesheet.png` has spaces in its
+filename. That works fine sitting in the folder, but spaces in a
+filename get awkward once it's referenced in CSS or HTML (they need to
+be written as `%20` in a URL, or the whole path wrapped in quotes).
+Worth renaming it to `tiny-player-spritesheet.png` before you reference
+it anywhere, one less thing to fight with later.
 
 Data is split by page instead of one shared `data.js`, each page only
 loads the data file it actually needs: `index.html` loads
@@ -56,8 +80,8 @@ actually has.
 Four separate HTML files, each a real page a browser can navigate to
 directly:
 
-- **index.html** — Chart: the mandala (8 pillars × 8 items = 64 cells),
-  a pillar detail/zoom view, and the 4-week map
+- **index.html** — Chart: one horizontal board (8 pillars x 8 items =
+  64 tiles, left to right), a pillar detail/zoom view, and the 4-week map
 - **resources.html** — links to practice sites, grouped by category
 - **cheatsheets.html** — reference material, tabbed by language (SQL,
   Python, Java)
@@ -83,9 +107,10 @@ shared file, so each page only loads what it needs:
 **GOAL** — one object: a title and a short subtitle describing the
 ultimate goal.
 
-**PILLARS** — an array of 8 objects, one per pillar. Each has: an id, a
-compass coordinate, a name, a short subtitle, a phase (`now` or `later`),
-an optional list of resources, and a list of 8 items. Each item has: the
+**PILLARS** — an array of 8 objects, one per pillar, in board order
+(first pillar is the leftmost section, last pillar is the rightmost
+before the goal). Each has: an id, a name, a short subtitle, a phase
+(`now` or `later`), an optional list of resources, and a list of 8 items. Each item has: the
 task text, a size tag (`quick`, `session`, or `milestone`), and an
 optional list of sub-steps for milestone-sized items.
 
@@ -152,15 +177,16 @@ between real files, the browser does the actual "routing."
 
 ## Gamification
 
-The chart's checklist gets a game layer on top, styled 8-bit/pixel-art,
+The chart itself is styled as one continuous 8-bit/pixel-art game board,
 inspired by Habitica's task-to-RPG mechanics but adapted to this
-project's actual shape.
+project's actual shape. This isn't a separate system layered on top of
+the chart, the board IS the chart.
 
 **Layout**: not zones/rows. One continuous linear path, like a level map,
 starting at the beginning of the journey and ending at a final
 "Data Engineer" tile. The path lays out all 64 chart items in order, in
-the same sequence as the mandala's pillars, so completing tiles left to
-right on the path mirrors completing pillars in the chart.
+the same sequence as the pillars on the board, since it IS the board,
+not a separate view of it.
 
 **Task types**, borrowed from Habitica's three-category split:
 
